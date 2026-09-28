@@ -1,0 +1,6 @@
+{
+  "name": "Mznlive",
+  "description": "Live local news, local market advertising, Facebook and Instagram reel promotions, and business marketplace for Mznlive.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
