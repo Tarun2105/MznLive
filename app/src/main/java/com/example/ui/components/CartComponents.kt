@@ -421,7 +421,7 @@ fun CartBottomSheet(
                                 )
                             }
 
-                            // Single Exclusive Payment Action: Razorpay Service Portal
+                            // Direct Local Order Placement with UPI / Cash on Delivery
                             Button(
                                 onClick = {
                                     if (deliveryAddress.isBlank()) {
@@ -432,29 +432,25 @@ fun CartBottomSheet(
                                         Toast.makeText(context, "Please enter a valid 10-digit mobile number", Toast.LENGTH_SHORT).show()
                                         return@Button
                                     }
-                                    val orderItemsSummary = cartItems.joinToString("\n") {
-                                        "• ${it.product.title} (Qty: ${it.quantity}) - ₹${it.product.priceInr * it.quantity}"
-                                    }
-                                    onDismiss()
-                                    onProceedToRazorpay(totalAmount, userContactPhone, deliveryAddress, orderItemsSummary)
+                                    showSuccessConfirmation = true
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(52.dp)
-                                    .testTag("cart_proceed_razorpay_btn"),
+                                    .testTag("cart_proceed_checkout_btn"),
                                 shape = RoundedCornerShape(14.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = TricolorGreen),
                                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Lock,
-                                    contentDescription = "Secure Checkout",
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = "Confirm Order",
                                     tint = Color.White,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Pay ₹$totalAmount via Razorpay Portal",
+                                    text = "Confirm Order & Pay ₹$totalAmount",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = Color.White

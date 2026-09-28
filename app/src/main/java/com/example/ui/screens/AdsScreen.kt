@@ -55,7 +55,7 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun AdsScreen(
     onNavigateToPlan: () -> Unit = {},
-    onBuyProductWithRazorpay: (PromotionalProduct, String, String) -> Unit = { _, _, _ -> }
+    onBuyProductDirect: (PromotionalProduct, String, String) -> Unit = { _, _, _ -> }
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -441,14 +441,15 @@ fun AdsScreen(
         )
     }
 
-    // Direct Buy Dialog via Razorpay Portal
+    // Direct Buy Dialog
     if (buyingProduct != null) {
         DirectBuyDialog(
             product = buyingProduct!!,
             onDismiss = { buyingProduct = null },
-            onProceedToRazorpay = { prod, phone, address ->
+            onProceedToBuy = { prod, phone, address ->
                 buyingProduct = null
-                onBuyProductWithRazorpay(prod, phone, address)
+                onBuyProductDirect(prod, phone, address)
+                Toast.makeText(context, "Order placed for ${prod.title}! Local seller contacted.", Toast.LENGTH_LONG).show()
             }
         )
     }
@@ -1247,13 +1248,13 @@ fun ComparisonRowCard(
 }
 
 /**
- * Direct Buy Dialog to order product via Razorpay Service Portal
+ * Direct Buy Dialog to order product with local delivery
  */
 @Composable
 fun DirectBuyDialog(
     product: PromotionalProduct,
     onDismiss: () -> Unit,
-    onProceedToRazorpay: (PromotionalProduct, String, String) -> Unit
+    onProceedToBuy: (PromotionalProduct, String, String) -> Unit
 ) {
     val context = LocalContext.current
     var customerName by remember { mutableStateOf("") }
@@ -1268,9 +1269,9 @@ fun DirectBuyDialog(
         shape = RoundedCornerShape(20.dp),
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF3395FF), modifier = Modifier.size(22.dp))
+                Icon(Icons.Default.ShoppingBag, contentDescription = null, tint = TricolorSaffron, modifier = Modifier.size(22.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Razorpay Checkout", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = TricolorNavy)
+                Text(text = "Direct Local Order", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = TricolorNavy)
             }
         },
         text = {
@@ -1319,7 +1320,7 @@ fun DirectBuyDialog(
                 OutlinedTextField(
                     value = customerPhone,
                     onValueChange = { customerPhone = it.filter { ch -> ch.isDigit() }.take(10) },
-                    label = { Text("Mobile Number (for receipt)") },
+                    label = { Text("Mobile Number (for delivery)") },
                     placeholder = { Text("e.g. 9876543210") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
@@ -1339,21 +1340,21 @@ fun DirectBuyDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Razorpay Security Trust Banner
+                // Local delivery guarantee banner
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Security,
+                        imageVector = Icons.Default.CheckCircle,
                         contentDescription = null,
-                        tint = Color(0xFF3395FF),
+                        tint = TricolorGreen,
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Secured by Razorpay • UPI, Cards, NetBanking & Wallets",
+                        text = "Instant Local Delivery • Cash / UPI on Delivery",
                         fontSize = 10.5.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1367,16 +1368,16 @@ fun DirectBuyDialog(
                     if (customerPhone.length < 10) {
                         Toast.makeText(context, "Please enter a valid 10-digit mobile number", Toast.LENGTH_SHORT).show()
                     } else {
-                        onProceedToRazorpay(product, customerPhone, customerAddress)
+                        onProceedToBuy(product, customerPhone, customerAddress)
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = TricolorGreen),
                 shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.testTag("submit_razorpay_direct_order_btn")
+                modifier = Modifier.testTag("submit_direct_order_btn")
             ) {
-                Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Pay ₹${product.priceInr} via Razorpay", fontWeight = FontWeight.ExtraBold)
+                Text("Place Order • ₹${product.priceInr}", fontWeight = FontWeight.ExtraBold)
             }
         },
         dismissButton = {
